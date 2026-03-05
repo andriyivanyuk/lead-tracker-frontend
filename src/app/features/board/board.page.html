@@ -1,0 +1,144 @@
+<section class="board-page">
+  <header class="board-topbar">
+    <div class="board-title-wrap">
+      <h1 class="board-title">Дошка</h1>
+    </div>
+
+    <mat-form-field appearance="outline" class="search-field">
+      <mat-label>Пошук</mat-label>
+      <input
+        matInput
+        [formControl]="searchControl"
+        placeholder="Ім'я / компанія / контакт"
+      />
+    </mat-form-field>
+  </header>
+
+  <section class="board-stats">
+    <div class="stat-item">
+      <span class="stat-label">Нові:</span>
+      <strong>{{ summaryCount('new') }}</strong>
+    </div>
+    <div class="stat-item">
+      <span class="stat-label">В роботі:</span>
+      <strong>{{ summaryCount('in_progress') }}</strong>
+    </div>
+    <div class="stat-item">
+      <span class="stat-label">Оплачено:</span>
+      <strong>{{ summaryCount('paid') }}</strong>
+    </div>
+    <div class="stat-item">
+      <span class="stat-label">Завершені:</span>
+      <strong>{{ summaryCount('completed') }}</strong>
+    </div>
+  </section>
+
+  <section class="board-actions">
+    <button
+      mat-flat-button
+      color="primary"
+      (click)="openCreateLeadDialog()"
+      [disabled]="boardStore.creating()"
+    >
+      Додати лід
+    </button>
+  </section>
+
+  <p class="error-text" *ngIf="boardStore.error()">{{ boardStore.error() }}</p>
+
+  <div class="loading-wrap" *ngIf="boardStore.loading()">
+    <mat-spinner diameter="28"></mat-spinner>
+  </div>
+
+  <div class="board-layout" *ngIf="!boardStore.loading()">
+    <div class="board-grid" cdkDropListGroup>
+      <div class="board-column" *ngFor="let column of columns">
+        <div class="column-header">
+          <h3 [ngClass]="column.className">{{ column.label }}</h3>
+          <span>{{ summaryCount(column.status) }}</span>
+        </div>
+
+        <div
+          class="column-dropzone"
+          cdkDropList
+          [cdkDropListData]="filteredLeads(column.status)"
+          (cdkDropListDropped)="onDrop($event, column.status)"
+        >
+          <mat-card
+            class="empty-card"
+            *ngIf="filteredLeads(column.status).length === 0"
+          >
+            Поки порожньо
+          </mat-card>
+
+          <mat-card
+            cdkDrag
+            *ngFor="let lead of filteredLeads(column.status)"
+            [cdkDragData]="lead"
+            class="lead-card"
+            [class.selected-card]="selectedLeadId() === lead.id"
+            (click)="selectLead(lead)"
+          >
+            <p class="lead-title">{{ displayLeadTitle(lead) }}</p>
+            <p class="lead-meta" *ngIf="lead.title">{{ lead.title }}</p>
+            <p class="lead-meta" *ngIf="lead.phone">{{ lead.phone }}</p>
+            <p class="lead-meta" *ngIf="lead.contact_handle">
+              {{ lead.contact_handle }}
+            </p>
+          </mat-card>
+        </div>
+      </div>
+    </div>
+
+    <mat-card
+      class="details-panel"
+      *ngIf="selectedLead() as lead; else noSelection"
+    >
+      <div class="details-header">
+        <h2>{{ displayLeadTitle(lead) }}</h2>
+        <span>{{ statusLabel(lead.status) }}</span>
+      </div>
+
+      <p class="details-line" *ngIf="lead.title">Компанія: {{ lead.title }}</p>
+      <p class="details-line" *ngIf="lead.phone">Телефон: {{ lead.phone }}</p>
+      <p class="details-line" *ngIf="lead.contact_handle">
+        Контакт: {{ lead.contact_handle }}
+      </p>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Статус</mat-label>
+        <mat-select [formControl]="detailsStatusControl">
+          <mat-option *ngFor="let column of columns" [value]="column.status">
+            {{ column.label }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Нотатка</mat-label>
+        <textarea
+          matInput
+          rows="4"
+          [formControl]="detailsNoteControl"
+        ></textarea>
+      </mat-form-field>
+
+      <div class="details-actions">
+        <button
+          mat-flat-button
+          color="primary"
+          (click)="saveSelectedLead()"
+          [disabled]="savingDetails"
+        >
+          Зберегти
+        </button>
+      </div>
+    </mat-card>
+
+    <ng-template #noSelection>
+      <mat-card class="details-panel empty-details">
+        Вибери картку на дошці, щоб побачити деталі справа.
+      </mat-card>
+    </ng-template>
+  </div>
+</section>

@@ -1,0 +1,28 @@
+.admin-invites-page {
+  padding: 16px;
+}
+
+.key-gate-card {
+  max-width: 420px;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.spacer {
+  flex: 1 1 auto;
+}
+
+.table-wrap {
+  margin-top: 16px;
+  overflow: auto;
+}
+
+.simple-text {
+  margin-top: 12px;
+}
+
+.error-text {
+  color: var(--mat-sys-error, inherit);
+}

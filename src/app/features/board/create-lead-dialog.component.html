@@ -1,0 +1,35 @@
+<h2 mat-dialog-title>Додати лід</h2>
+
+<mat-dialog-content>
+  <div class="dialog-grid">
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Ім'я</mat-label>
+      <input matInput [formControl]="nameControl" />
+      <mat-error
+        *ngIf="nameControl.touched && nameControl.hasError('required')"
+      >
+        Ім'я обов'язкове
+      </mat-error>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Компанія</mat-label>
+      <input matInput [formControl]="companyControl" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Контакт (email / &#64;handle)</mat-label>
+      <input matInput [formControl]="contactControl" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Нотатка</mat-label>
+      <input matInput [formControl]="noteControl" />
+    </mat-form-field>
+  </div>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="cancel()">Скасувати</button>
+  <button mat-flat-button color="primary" (click)="submit()">Створити</button>
+</mat-dialog-actions>

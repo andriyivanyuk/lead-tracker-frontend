@@ -4,9 +4,11 @@ import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
 
-import { CreateLeadRequest } from '../../interfaces/lead.interface';
+import { CreateLeadRequest, LeadSource } from '../../interfaces/lead.interface';
 import { mapCreateLeadFormToPayload } from './create-lead.mapper';
 
 @Component({
@@ -17,27 +19,50 @@ import { mapCreateLeadFormToPayload } from './create-lead.mapper';
     ReactiveFormsModule,
     MatDialogModule,
     MatFormFieldModule,
+    MatSelectModule,
     MatInputModule,
+    MatIconModule,
     MatButtonModule,
   ],
   templateUrl: './create-lead-dialog.component.html',
   styleUrl: './create-lead-dialog.component.scss',
 })
 export class CreateLeadDialogComponent {
-  readonly nameControl = new FormControl('', {
+  readonly sourceOptions: Array<{
+    value: LeadSource;
+    label: string;
+    icon: string;
+  }> = [
+    { value: 'instagram', label: 'Instagram', icon: 'photo_camera' },
+    { value: 'telegram', label: 'Telegram', icon: 'send' },
+    { value: 'viber', label: 'Viber', icon: 'chat' },
+    { value: 'facebook', label: 'Facebook', icon: 'thumb_up' },
+    { value: 'other', label: 'Інше', icon: 'language' },
+  ];
+
+  readonly contactNameControl = new FormControl('', {
     nonNullable: true,
     validators: [Validators.required],
   });
 
-  readonly companyControl = new FormControl('', {
+  readonly sourceControl = new FormControl<LeadSource>('other', {
+    nonNullable: true,
+    validators: [Validators.required],
+  });
+
+  readonly contactHandleControl = new FormControl('', {
     nonNullable: true,
   });
 
-  readonly contactControl = new FormControl('', {
+  readonly phoneControl = new FormControl('', {
     nonNullable: true,
   });
 
-  readonly noteControl = new FormControl('', {
+  readonly titleControl = new FormControl('', {
+    nonNullable: true,
+  });
+
+  readonly notesControl = new FormControl('', {
     nonNullable: true,
   });
 
@@ -51,20 +76,27 @@ export class CreateLeadDialogComponent {
   ) {}
 
   submit(): void {
-    this.nameControl.markAsTouched();
+    this.contactNameControl.markAsTouched();
+    this.sourceControl.markAsTouched();
     this.amountControl.markAsTouched();
 
-    if (this.nameControl.invalid || this.amountControl.invalid) {
+    if (
+      this.contactNameControl.invalid ||
+      this.sourceControl.invalid ||
+      this.amountControl.invalid
+    ) {
       return;
     }
 
     const amountMinorValue = this.parseAmountMinor(this.amountControl.value);
     const payload: CreateLeadRequest = mapCreateLeadFormToPayload({
-      name: this.nameControl.value,
-      company: this.companyControl.value,
-      contact: this.contactControl.value,
-      notes: this.noteControl.value,
-      phone: '',
+      title: this.titleControl.value,
+      contact_name: this.contactNameControl.value,
+      contact_handle: this.contactHandleControl.value,
+      phone: this.phoneControl.value,
+      notes: this.notesControl.value,
+      status: 'new',
+      source: this.sourceControl.value,
       amount_minor: amountMinorValue,
       currency_code: 'UAH',
       reminder_at: null,

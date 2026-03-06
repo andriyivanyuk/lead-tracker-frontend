@@ -1,4 +1,23 @@
 <section class="board-page">
+  <section class="board-stats">
+    <div class="stat-item">
+      <span class="stat-label">Нові:</span>
+      <strong>{{ summaryCount('new') }}</strong>
+    </div>
+    <div class="stat-item">
+      <span class="stat-label">Оплачено:</span>
+      <strong>{{ summaryCount('paid') }}</strong>
+    </div>
+    <div class="stat-item">
+      <span class="stat-label">Оплачено за тиждень:</span>
+      <strong>{{ paidWeekCount() }}</strong>
+    </div>
+    <div class="stat-item">
+      <span class="stat-label">Сума:</span>
+      <strong>{{ totalAmountLabel() }}</strong>
+    </div>
+  </section>
+
   <section class="board-context">
     <mat-form-field
       appearance="outline"
@@ -22,25 +41,6 @@
       >
         Додати лід
       </button>
-    </div>
-  </section>
-
-  <section class="board-stats">
-    <div class="stat-item">
-      <span class="stat-label">Нові:</span>
-      <strong>{{ summaryCount('new') }}</strong>
-    </div>
-    <div class="stat-item">
-      <span class="stat-label">Оплачено:</span>
-      <strong>{{ summaryCount('paid') }}</strong>
-    </div>
-    <div class="stat-item">
-      <span class="stat-label">Оплачено за тиждень:</span>
-      <strong>{{ paidWeekCount() }}</strong>
-    </div>
-    <div class="stat-item">
-      <span class="stat-label">Сума:</span>
-      <strong>{{ totalAmountLabel() }}</strong>
     </div>
   </section>
 

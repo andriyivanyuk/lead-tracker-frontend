@@ -5,11 +5,11 @@ import {
 } from '../../interfaces/lead.interface';
 
 export interface CreateLeadFormValue {
-  name: string;
-  company: string;
-  contact: string;
-  notes: string;
+  title: string;
+  contact_name: string;
+  contact_handle: string;
   phone: string;
+  notes: string;
   status?: CreateLeadStatus;
   source?: LeadSource;
   amount_minor: number | null;
@@ -21,14 +21,14 @@ export function mapCreateLeadFormToPayload(
   form: CreateLeadFormValue,
 ): CreateLeadRequest {
   return {
-    title: normalizeNullableText(form.company),
-    contact_name: normalizeNullableText(form.name),
-    contact_handle: normalizeNullableText(form.contact),
+    title: normalizeNullableText(form.title),
+    contact_name: normalizeNullableText(form.contact_name),
+    contact_handle: normalizeNullableText(form.contact_handle),
     phone: normalizeNullableText(form.phone),
     notes: normalizeNullableText(form.notes),
     status: form.status ?? 'new',
     source: form.source ?? 'other',
-    amount_minor: form.amount_minor,
+    amount_minor: form.amount_minor ?? null,
     currency_code: normalizeRequiredText(form.currency_code, 'UAH'),
     reminder_at: normalizeNullableText(form.reminder_at),
   };

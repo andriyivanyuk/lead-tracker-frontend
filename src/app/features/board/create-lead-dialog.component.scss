@@ -1,7 +1,20 @@
 .dialog-grid {
   min-width: 420px;
+  max-width: 520px;
 }
 
 .full-width {
   width: 100%;
+}
+
+.source-option {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.source-option-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
 }

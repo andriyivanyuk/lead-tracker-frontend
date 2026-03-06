@@ -61,7 +61,7 @@
 
 .board-layout {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 320px;
+  grid-template-columns: minmax(0, 1fr) minmax(380px, 460px);
   gap: 12px;
   align-items: start;
 }

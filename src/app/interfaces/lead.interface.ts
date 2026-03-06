@@ -45,6 +45,8 @@ export interface LeadsSummary {
   paid_this_week_count?: number;
   week_paid_count?: number;
   total_amount_minor?: number;
+  paid_sum_minor?: number;
+  currency_code?: string;
 }
 
 export interface CreateLeadRequest {

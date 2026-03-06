@@ -23,20 +23,27 @@
 .board-stats {
   display: grid;
   grid-template-columns: repeat(4, minmax(150px, 1fr));
-  gap: 8px;
+  gap: 14px;
   border: 1px solid var(--mat-sys-outline-variant, #ccc);
   border-radius: 10px;
-  padding: 10px 12px;
+  padding: 16px 20px;
   background: var(--mat-sys-surface, transparent);
 }
 
 .stat-item {
   display: flex;
   align-items: baseline;
-  gap: 6px;
+  gap: 8px;
+}
+
+.stat-item strong {
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1;
 }
 
 .stat-label {
+  font-size: 14px;
   opacity: 0.8;
 }
 
@@ -289,6 +296,15 @@
 
   .board-layout {
     grid-template-columns: 1fr;
+  }
+
+  .board-stats {
+    gap: 10px;
+    padding: 12px 14px;
+  }
+
+  .stat-item strong {
+    font-size: 18px;
   }
 
   .details-panel {

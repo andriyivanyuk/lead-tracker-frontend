@@ -18,6 +18,7 @@ import {
   LeadEvent,
   LeadStatus,
 } from '../../interfaces/lead.interface';
+import { ConfirmDeleteDialogComponent } from './confirm-delete-dialog.component';
 import { CreateLeadDialogComponent } from './create-lead-dialog.component';
 import { BoardStore } from './board.store';
 
@@ -296,9 +297,19 @@ export class BoardPage implements OnInit {
       return;
     }
 
-    const confirmed = window.confirm(
-      'Видалити заявку? Цю дію не можна скасувати.',
-    );
+    const dialogRef = this.dialog.open<
+      ConfirmDeleteDialogComponent,
+      { leadTitle: string },
+      boolean
+    >(ConfirmDeleteDialogComponent, {
+      width: '420px',
+      maxWidth: '95vw',
+      data: {
+        leadTitle: this.displayLeadTitle(lead),
+      },
+    });
+
+    const confirmed = await firstValueFrom(dialogRef.afterClosed());
     if (!confirmed) {
       return;
     }

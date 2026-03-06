@@ -78,6 +78,13 @@ export class BoardStore {
         completed_count: this.extractCompletedCount(
           completedSummaryResponse.summary,
         ),
+        total_amount_minor: this.extractTotalAmountMinor(
+          summaryResponse.summary,
+          completedSummaryResponse.summary,
+        ),
+        currency_code:
+          completedSummaryResponse.summary.currency_code ??
+          summaryResponse.summary.currency_code,
       });
     } catch {
       this._error.set('Не вдалося завантажити дані дошки.');
@@ -110,7 +117,10 @@ export class BoardStore {
   }
 
   totalAmountMinor(): number {
-    return this.getNumericSummaryByKeys(['total_amount_minor']);
+    return this.getNumericSummaryByKeys([
+      'total_amount_minor',
+      'paid_sum_minor',
+    ]);
   }
 
   totalAmountCurrency(): string {
@@ -347,6 +357,25 @@ export class BoardStore {
     return 0;
   }
 
+  private extractTotalAmountMinor(
+    leadsSummary: LeadsSummary,
+    completedSummary: CompletedSummary,
+  ): number {
+    if (typeof completedSummary.total_amount_minor === 'number') {
+      return completedSummary.total_amount_minor;
+    }
+
+    if (typeof leadsSummary.total_amount_minor === 'number') {
+      return leadsSummary.total_amount_minor;
+    }
+
+    if (typeof leadsSummary.paid_sum_minor === 'number') {
+      return leadsSummary.paid_sum_minor;
+    }
+
+    return 0;
+  }
+
   private getNumericSummaryByKeys(keys: string[]): number {
     for (const key of keys) {
       const value = this.summaryValue(key);
@@ -408,6 +437,8 @@ export class BoardStore {
         return summary.week_paid_count;
       case 'total_amount_minor':
         return summary.total_amount_minor;
+      case 'paid_sum_minor':
+        return summary.paid_sum_minor;
       case 'currency_code':
         return summary.currency_code;
       case 'total_count':

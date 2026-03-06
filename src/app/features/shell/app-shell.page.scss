@@ -1,11 +1,87 @@
-.spacer {
-  flex: 1 1 auto;
+@use "../../../styles/tokens" as tokens;
+
+.app-header {
+  align-items: center;
+  background: var(--color-bg-surface);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: 12px;
+  box-shadow: tokens.$shadow-sm;
+  display: grid;
+  gap: 12px;
+  grid-template-columns: 1fr auto;
+  margin: 12px 16px 0;
+  padding: 10px 14px;
+}
+
+.header-center {
+  align-items: center;
+  display: flex;
+  gap: 18px;
+  justify-content: flex-start;
+  min-width: 0;
+}
+
+.brand {
+  color: var(--color-text-primary);
+  font-size: 16px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.header-nav {
+  align-items: center;
+  display: flex;
+  gap: 4px;
+}
+
+.nav-link {
+  border-radius: 8px;
+  color: var(--color-text-secondary);
+  font-weight: 500;
+}
+
+.nav-link:hover {
+  color: var(--color-primary);
+}
+
+.active-link {
+  background: var(--color-primary-soft);
+  color: var(--color-primary);
+}
+
+.header-actions {
+  align-items: center;
+  display: flex;
+  gap: 8px;
+}
+
+.account-btn {
+  align-items: center;
+  display: inline-flex;
+  gap: 6px;
+}
+
+.account-btn mat-icon {
+  font-size: 18px;
+  height: 18px;
+  width: 18px;
 }
 
 .shell-content {
   padding: 16px;
 }
 
-.active-link {
-  text-decoration: underline;
+@media (max-width: 1100px) {
+  .app-header {
+    grid-template-columns: 1fr;
+  }
+
+  .header-center {
+    flex-wrap: wrap;
+    justify-content: flex-start;
+  }
+
+  .header-actions {
+    justify-content: flex-end;
+  }
 }

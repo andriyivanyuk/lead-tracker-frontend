@@ -1,29 +1,30 @@
-<div class="auth-page">
-  <mat-card class="auth-card">
-    <mat-card-title>Login</mat-card-title>
+<div class="app-page flex-center auth-page">
+  <mat-card class="app-card auth-card">
+    <mat-card-title>Вхід</mat-card-title>
+    <p class="auth-subtitle">Увійдіть у свій акаунт</p>
     <mat-card-content>
       <mat-form-field appearance="outline" class="full-width">
-        <mat-label>Email</mat-label>
+        <mat-label>Електронна пошта</mat-label>
         <input matInput type="email" [formControl]="emailControl" />
         <mat-error
           *ngIf="emailControl.touched && emailControl.hasError('required')"
         >
-          Email is required
+          Електронна пошта обов’язкова
         </mat-error>
         <mat-error
           *ngIf="emailControl.touched && emailControl.hasError('email')"
         >
-          Enter a valid email
+          Введіть коректну електронну пошту
         </mat-error>
       </mat-form-field>
 
       <mat-form-field appearance="outline" class="full-width">
-        <mat-label>Password</mat-label>
+        <mat-label>Пароль</mat-label>
         <input matInput type="password" [formControl]="passwordControl" />
         <mat-error
           *ngIf="passwordControl.touched && passwordControl.hasError('required')"
         >
-          Password is required
+          Пароль обов’язковий
         </mat-error>
       </mat-form-field>
 
@@ -33,15 +34,20 @@
     </mat-card-content>
 
     <mat-card-actions>
-      <button
-        mat-flat-button
-        color="primary"
-        (click)="submit()"
-        [disabled]="authStore.loading()"
-      >
-        Login
-      </button>
-      <a mat-button routerLink="/register">Create account</a>
+      <div class="auth-actions">
+        <button
+          mat-flat-button
+          color="primary"
+          class="auth-submit"
+          (click)="submit()"
+          [disabled]="authStore.loading()"
+        >
+          Увійти
+        </button>
+        <a mat-button class="auth-link" routerLink="/register"
+          >Створити акаунт</a
+        >
+      </div>
     </mat-card-actions>
   </mat-card>
 </div>

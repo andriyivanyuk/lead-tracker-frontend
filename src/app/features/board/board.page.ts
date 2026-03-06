@@ -90,6 +90,7 @@ export class BoardPage implements OnInit {
   });
 
   savingDetails = false;
+  deletingLead = false;
 
   constructor(
     public readonly boardStore: BoardStore,
@@ -258,13 +259,71 @@ export class BoardPage implements OnInit {
 
     this.savingDetails = true;
 
-    const noteValue = this.detailsNoteControl.value.trim();
-    await this.boardStore.updateLead(lead.id, {
-      status: this.detailsStatusControl.value,
-      notes: noteValue.length > 0 ? noteValue : null,
-    });
+    try {
+      const noteValue = this.detailsNoteControl.value.trim();
+      const nextNotes = noteValue.length > 0 ? noteValue : null;
 
-    this.savingDetails = false;
+      const saved = await this.boardStore.saveLeadDetailsChanges(
+        lead,
+        this.detailsStatusControl.value,
+        nextNotes,
+      );
+
+      if (!saved) {
+        return;
+      }
+
+      if (this.detailsStatusControl.value === 'completed') {
+        this.selectedLeadId.set(null);
+        this.detailsStatusControl.setValue('new');
+        this.detailsNoteControl.setValue('');
+        return;
+      }
+
+      const refreshedLead = this.boardStore.selectedLeadDetails();
+      if (refreshedLead && refreshedLead.id === lead.id) {
+        this.detailsStatusControl.setValue(refreshedLead.status);
+        this.detailsNoteControl.setValue(refreshedLead.notes ?? '');
+      }
+    } finally {
+      this.savingDetails = false;
+    }
+  }
+
+  async deleteSelectedLead(): Promise<void> {
+    const lead = this.selectedLead();
+    if (!lead) {
+      return;
+    }
+
+    const confirmed = window.confirm(
+      'Видалити заявку? Цю дію не можна скасувати.',
+    );
+    if (!confirmed) {
+      return;
+    }
+
+    this.deletingLead = true;
+
+    const deleted = await this.boardStore.deleteLead(lead.id);
+
+    if (deleted) {
+      this.selectedLeadId.set(null);
+      this.detailsStatusControl.setValue('new');
+      this.detailsNoteControl.setValue('');
+      this.boardStore.clearLeadDetails();
+    }
+
+    this.deletingLead = false;
+  }
+
+  isDeletingSelectedLead(): boolean {
+    const lead = this.selectedLead();
+    if (!lead) {
+      return false;
+    }
+
+    return this.deletingLead || this.boardStore.isDeletingLead(lead.id);
   }
 
   statusLabel(status: LeadStatus): string {

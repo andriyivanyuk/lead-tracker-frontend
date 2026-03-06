@@ -1,39 +1,40 @@
-<div class="auth-page">
-  <mat-card class="auth-card">
-    <mat-card-title>Register</mat-card-title>
+<div class="app-page flex-center auth-page">
+  <mat-card class="app-card auth-card">
+    <mat-card-title>Реєстрація</mat-card-title>
+    <p class="auth-subtitle">Створіть новий акаунт</p>
     <mat-card-content>
       <mat-form-field appearance="outline" class="full-width">
-        <mat-label>Email</mat-label>
+        <mat-label>Електронна пошта</mat-label>
         <input matInput type="email" [formControl]="emailControl" />
         <mat-error
           *ngIf="emailControl.touched && emailControl.hasError('required')"
         >
-          Email is required
+          Електронна пошта обов’язкова
         </mat-error>
         <mat-error
           *ngIf="emailControl.touched && emailControl.hasError('email')"
         >
-          Enter a valid email
+          Введіть коректну електронну пошту
         </mat-error>
       </mat-form-field>
 
       <mat-form-field appearance="outline" class="full-width">
-        <mat-label>Password</mat-label>
+        <mat-label>Пароль</mat-label>
         <input matInput type="password" [formControl]="passwordControl" />
         <mat-error
           *ngIf="passwordControl.touched && passwordControl.hasError('required')"
         >
-          Password is required
+          Пароль обов’язковий
         </mat-error>
       </mat-form-field>
 
       <mat-form-field appearance="outline" class="full-width">
-        <mat-label>Invite code</mat-label>
+        <mat-label>Код запрошення</mat-label>
         <input matInput type="text" [formControl]="inviteCodeControl" />
         <mat-error
           *ngIf="inviteCodeControl.touched && inviteCodeControl.hasError('required')"
         >
-          Invite code is required
+          Код запрошення обов’язковий
         </mat-error>
       </mat-form-field>
 
@@ -43,15 +44,18 @@
     </mat-card-content>
 
     <mat-card-actions>
-      <button
-        mat-flat-button
-        color="primary"
-        (click)="submit()"
-        [disabled]="authStore.loading()"
-      >
-        Register
-      </button>
-      <a mat-button routerLink="/login">Have account</a>
+      <div class="auth-actions">
+        <button
+          mat-flat-button
+          color="primary"
+          class="auth-submit"
+          (click)="submit()"
+          [disabled]="authStore.loading()"
+        >
+          Зареєструватися
+        </button>
+        <a mat-button class="auth-link" routerLink="/login">Вже є акаунт</a>
+      </div>
     </mat-card-actions>
   </mat-card>
 </div>

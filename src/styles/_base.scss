@@ -1,0 +1,63 @@
+@use "./tokens" as tokens;
+
+:root {
+  --color-bg-page: #{tokens.$color-bg};
+  --color-bg-surface: #{tokens.$color-surface};
+  --color-border-subtle: #{tokens.$color-border};
+  --color-text-primary: #{tokens.$color-text-primary};
+  --color-text-secondary: #{tokens.$color-text-secondary};
+  --color-primary: #{tokens.$color-primary};
+  --color-primary-hover: #{tokens.$color-primary-hover};
+  --color-primary-soft: #{tokens.$color-primary-soft};
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: tokens.$color-bg;
+  color: tokens.$color-text-primary;
+  font-family:
+    Inter,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    Roboto,
+    "Helvetica Neue",
+    Arial,
+    sans-serif;
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+a {
+  color: tokens.$color-primary;
+  text-decoration: none;
+}
+
+a:hover {
+  color: tokens.$color-primary-hover;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  margin: 0 0 tokens.$space-4;
+  color: tokens.$color-text-primary;
+  font-weight: 600;
+}
+
+p {
+  margin: 0 0 tokens.$space-3;
+  color: tokens.$color-text-secondary;
+}

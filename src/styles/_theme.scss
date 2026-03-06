@@ -1,0 +1,65 @@
+@use "@angular/material" as mat;
+@use "./tokens" as tokens;
+
+@include mat.core();
+
+$primary-palette: (
+  50: #f5f3ff,
+  100: #ede9fe,
+  200: #ddd6fe,
+  300: #c4b5fd,
+  400: #a78bfa,
+  500: tokens.$color-primary,
+  600: tokens.$color-primary-hover,
+  700: #6d28d9,
+  800: #5b21b6,
+  900: #4c1d95,
+  A100: #ede9fe,
+  A200: #c4b5fd,
+  A400: #a78bfa,
+  A700: tokens.$color-primary-hover,
+  contrast: (
+    50: tokens.$color-text-primary,
+    100: tokens.$color-text-primary,
+    200: tokens.$color-text-primary,
+    300: tokens.$color-text-primary,
+    400: #ffffff,
+    500: #ffffff,
+    600: #ffffff,
+    700: #ffffff,
+    800: #ffffff,
+    900: #ffffff,
+    A100: tokens.$color-text-primary,
+    A200: tokens.$color-text-primary,
+    A400: #ffffff,
+    A700: #ffffff,
+  ),
+);
+
+$app-primary: mat.m2-define-palette($primary-palette, 500, 400, 600);
+$app-accent: mat.m2-define-palette(mat.$m2-deep-purple-palette, 500);
+$app-warn: mat.m2-define-palette(mat.$m2-red-palette);
+
+$app-typography: mat.m2-define-typography-config(
+  $font-family:
+    'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
+);
+
+$app-theme: mat.m2-define-light-theme(
+  (
+    color: (
+      primary: $app-primary,
+      accent: $app-accent,
+      warn: $app-warn,
+    ),
+    typography: $app-typography,
+    density: 0,
+  )
+);
+
+@include mat.all-component-themes($app-theme);
+
+body {
+  background: tokens.$color-bg;
+  color: tokens.$color-text-primary;
+}

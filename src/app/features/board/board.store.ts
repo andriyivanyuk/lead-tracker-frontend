@@ -32,6 +32,7 @@ export class BoardStore {
   private readonly _error = signal<string | null>(null);
   private readonly _movingLeadId = signal<number | null>(null);
   private readonly _creating = signal(false);
+  private readonly _deletingLeadId = signal<number | null>(null);
   private readonly _selectedLeadDetails = signal<Lead | null>(null);
   private readonly _selectedLeadEvents = signal<LeadEvent[]>([]);
 
@@ -42,6 +43,7 @@ export class BoardStore {
   readonly error = this._error.asReadonly();
   readonly movingLeadId = this._movingLeadId.asReadonly();
   readonly creating = this._creating.asReadonly();
+  readonly deletingLeadId = this._deletingLeadId.asReadonly();
   readonly selectedLeadDetails = this._selectedLeadDetails.asReadonly();
   readonly selectedLeadEvents = this._selectedLeadEvents.asReadonly();
   readonly statuses = computed(() => BOARD_STATUSES);
@@ -173,15 +175,100 @@ export class BoardStore {
     }
   }
 
-  async deleteLead(id: number): Promise<void> {
+  async saveLeadDetailsChanges(
+    lead: Lead,
+    nextStatus: LeadStatus,
+    nextNotes: string | null,
+  ): Promise<boolean> {
     this._error.set(null);
+
+    try {
+      const payload = this.buildEditableSnapshot(lead, nextStatus, nextNotes);
+      await firstValueFrom(this.leadsApi.updateLead(lead.id, payload));
+
+      await this.loadBoard();
+
+      if (nextStatus === 'completed') {
+        this.clearLeadDetails();
+      } else {
+        await this.loadLeadDetails(lead.id);
+      }
+
+      return true;
+    } catch (error) {
+      if (error instanceof HttpErrorResponse) {
+        const backendMessage = this.extractBackendErrorMessage(error);
+        this._error.set(backendMessage ?? 'Failed to update lead.');
+      } else {
+        this._error.set('Failed to update lead.');
+      }
+
+      return false;
+    }
+  }
+
+  private buildEditableSnapshot(
+    lead: Lead,
+    status: LeadStatus,
+    notes: string | null,
+  ): UpdateLeadRequest {
+    const payload: UpdateLeadRequest = {
+      title: this.normalizeNullableText(lead.title),
+      contact_name: this.normalizeNullableText(lead.contact_name),
+      contact_handle: this.normalizeNullableText(lead.contact_handle),
+      phone: this.normalizeNullableText(lead.phone),
+      notes: this.normalizeNullableText(notes),
+      status,
+    };
+
+    if (lead.source !== null) {
+      payload.source = lead.source;
+    }
+
+    payload.amount_minor = lead.amount_minor ?? null;
+
+    if (lead.currency_code && lead.currency_code.length > 0) {
+      payload.currency_code = lead.currency_code;
+    }
+
+    payload.reminder_at = lead.reminder_at ?? null;
+
+    return payload;
+  }
+
+  private normalizeNullableText(value: string | null): string | null {
+    if (value === null) {
+      return null;
+    }
+
+    const trimmed = value.trim();
+    return trimmed.length > 0 ? trimmed : null;
+  }
+
+  async deleteLead(id: number): Promise<boolean> {
+    this._error.set(null);
+    this._deletingLeadId.set(id);
 
     try {
       await firstValueFrom(this.leadsApi.deleteLead(id));
       await this.loadBoard();
-    } catch {
-      this._error.set('Failed to delete lead.');
+      return true;
+    } catch (error) {
+      if (error instanceof HttpErrorResponse) {
+        const backendMessage = this.extractBackendErrorMessage(error);
+        this._error.set(backendMessage ?? 'Failed to delete lead.');
+      } else {
+        this._error.set('Failed to delete lead.');
+      }
+
+      return false;
+    } finally {
+      this._deletingLeadId.set(null);
     }
+  }
+
+  isDeletingLead(id: number): boolean {
+    return this._deletingLeadId() === id;
   }
 
   async loadLeadDetails(leadId: number): Promise<void> {

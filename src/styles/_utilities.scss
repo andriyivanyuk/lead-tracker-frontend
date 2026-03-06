@@ -1,0 +1,28 @@
+@use "./tokens" as tokens;
+
+.app-page {
+  min-height: 100vh;
+  padding: tokens.$space-6 tokens.$space-4;
+}
+
+.app-section {
+  margin-bottom: tokens.$space-6;
+}
+
+.app-card {
+  background: tokens.$color-surface;
+  border: 1px solid tokens.$color-border-strong;
+  border-radius: tokens.$radius-md;
+  box-shadow: tokens.$shadow-sm;
+  padding: tokens.$space-6;
+}
+
+.flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.text-muted {
+  color: tokens.$color-text-muted;
+}

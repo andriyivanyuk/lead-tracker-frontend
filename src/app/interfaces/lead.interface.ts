@@ -31,7 +31,18 @@ export interface GetLeadsResponse {
 
 export interface GetLeadsSummaryResponse {
   ok: boolean;
-  summary: Record<string, number>;
+  summary: LeadsSummary;
+}
+
+export interface LeadsSummary {
+  new_count?: number;
+  in_progress_count?: number;
+  paid_count?: number;
+  completed_count?: number;
+  paid_week_count?: number;
+  paid_this_week_count?: number;
+  week_paid_count?: number;
+  total_amount_minor?: number;
 }
 
 export interface CreateLeadRequest {

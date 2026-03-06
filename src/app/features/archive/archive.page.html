@@ -1,6 +1,6 @@
 <section class="archive-page">
   <header class="archive-header">
-    <h1>Archive</h1>
+    <h1>Архів</h1>
   </header>
 
   <p class="error-text" *ngIf="archiveStore.error()">
@@ -18,12 +18,12 @@
         *ngIf="summaryEntries().length > 0; else noSummary"
       >
         <div class="summary-item" *ngFor="let entry of summaryEntries()">
-          <span class="summary-key">{{ entry.key }}</span>
-          <strong>{{ entry.value }}</strong>
+          <span class="summary-key">{{ summaryLabel(entry.key) }}</span>
+          <strong>{{ summaryValue(entry.key, entry.value) }}</strong>
         </div>
       </div>
       <ng-template #noSummary>
-        <p class="muted">No summary data yet.</p>
+        <p class="muted">Поки немає даних аналітики.</p>
       </ng-template>
     </mat-card>
 
@@ -34,31 +34,31 @@
         class="archive-table"
       >
         <ng-container matColumnDef="title">
-          <th mat-header-cell *matHeaderCellDef>Title</th>
+          <th mat-header-cell *matHeaderCellDef>Назва</th>
           <td mat-cell *matCellDef="let item">{{ item.title || '-' }}</td>
         </ng-container>
 
         <ng-container matColumnDef="contact_name">
-          <th mat-header-cell *matHeaderCellDef>Contact</th>
+          <th mat-header-cell *matHeaderCellDef>Контакт</th>
           <td mat-cell *matCellDef="let item">
             {{ item.contact_name || '-' }}
           </td>
         </ng-container>
 
         <ng-container matColumnDef="contact_handle">
-          <th mat-header-cell *matHeaderCellDef>Handle</th>
+          <th mat-header-cell *matHeaderCellDef>Хендл</th>
           <td mat-cell *matCellDef="let item">
             {{ item.contact_handle || '-' }}
           </td>
         </ng-container>
 
         <ng-container matColumnDef="amount_minor">
-          <th mat-header-cell *matHeaderCellDef>Amount</th>
+          <th mat-header-cell *matHeaderCellDef>Сума</th>
           <td mat-cell *matCellDef="let item">{{ displayAmount(item) }}</td>
         </ng-container>
 
         <ng-container matColumnDef="completed_at">
-          <th mat-header-cell *matHeaderCellDef>Completed at</th>
+          <th mat-header-cell *matHeaderCellDef>Завершено</th>
           <td mat-cell *matCellDef="let item">
             {{ displayCompletedAt(item) }}
           </td>
@@ -69,7 +69,7 @@
       </table>
 
       <p class="muted" *ngIf="!archiveStore.hasItems()">
-        No completed leads yet.
+        Поки немає завершених заявок.
       </p>
     </mat-card>
   </ng-container>

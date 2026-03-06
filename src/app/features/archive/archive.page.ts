@@ -34,11 +34,61 @@ export class ArchivePage implements OnInit {
     this.archiveStore.loadArchive();
   }
 
-  summaryEntries(): Array<{ key: string; value: number }> {
-    return Object.entries(this.archiveStore.summary()).map(([key, value]) => ({
-      key,
-      value,
-    }));
+  summaryEntries(): Array<{ key: string; value: number | string }> {
+    const summary = this.archiveStore.summary();
+
+    return [
+      { key: 'total_count', value: summary.total_count ?? 0 },
+      { key: 'success_count', value: summary.success_count ?? 0 },
+      { key: 'refused_count', value: summary.refused_count ?? 0 },
+      { key: 'no_response_count', value: summary.no_response_count ?? 0 },
+      { key: 'other_count', value: summary.other_count ?? 0 },
+      {
+        key: 'total_amount_minor',
+        value: summary.total_amount_minor ?? 0,
+      },
+      { key: 'currency_code', value: summary.currency_code ?? 'UAH' },
+    ];
+  }
+
+  summaryLabel(key: string): string {
+    switch (key) {
+      case 'total_count':
+        return 'Всього';
+      case 'success_count':
+        return 'Успішно';
+      case 'refused_count':
+        return 'Відмова';
+      case 'no_response_count':
+        return 'Без відповіді';
+      case 'other_count':
+        return 'Інше';
+      case 'total_amount_minor':
+        return 'Загальна сума';
+      case 'currency_code':
+        return 'Валюта';
+      default:
+        return key;
+    }
+  }
+
+  summaryValue(key: string, value: number | string): string {
+    if (key === 'total_amount_minor' && typeof value === 'number') {
+      const currency = this.archiveStore.currencyCode();
+      const amountMajor = value / 100;
+      const amountText = amountMajor.toLocaleString('uk-UA', {
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 2,
+      });
+
+      if (currency === 'UAH') {
+        return `${amountText} грн`;
+      }
+
+      return `${amountText} ${currency}`;
+    }
+
+    return String(value);
   }
 
   displayAmount(item: CompletedItem): string {

@@ -141,10 +141,66 @@ export class BoardPage implements OnInit {
     return this.boardStore.summaryCountByStatus(status);
   }
 
+  paidWeekCount(): number {
+    return this.boardStore.paidWeekCount();
+  }
+
+  totalAmountLabel(): string {
+    const amountMajor = this.boardStore.totalAmountMinor() / 100;
+    const formatted = amountMajor.toLocaleString('uk-UA', {
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 2,
+    });
+
+    const currency = this.boardStore.totalAmountCurrency();
+    if (currency === 'UAH') {
+      return `${formatted} грн`;
+    }
+
+    return `${formatted} ${currency}`;
+  }
+
   selectLead(lead: Lead): void {
     this.selectedLeadId.set(lead.id);
     this.detailsStatusControl.setValue(lead.status);
     this.detailsNoteControl.setValue(lead.notes ?? '');
+  }
+
+  hasSelectedLead(): boolean {
+    return this.selectedLead() !== null;
+  }
+
+  selectedLeadTitle(): string {
+    const lead = this.selectedLead();
+    if (!lead) {
+      return '';
+    }
+
+    return this.displayLeadTitle(lead);
+  }
+
+  selectedLeadStatusLabel(): string {
+    const lead = this.selectedLead();
+    if (!lead) {
+      return '';
+    }
+
+    return this.statusLabel(lead.status);
+  }
+
+  selectedLeadCompany(): string | null {
+    const lead = this.selectedLead();
+    return lead ? lead.title : null;
+  }
+
+  selectedLeadPhone(): string | null {
+    const lead = this.selectedLead();
+    return lead ? lead.phone : null;
+  }
+
+  selectedLeadHandle(): string | null {
+    const lead = this.selectedLead();
+    return lead ? lead.contact_handle : null;
   }
 
   async saveSelectedLead(): Promise<void> {

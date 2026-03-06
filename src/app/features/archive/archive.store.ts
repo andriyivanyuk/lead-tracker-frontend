@@ -2,12 +2,15 @@ import { Injectable, computed, signal } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 
 import { CompletedApi } from '../../core/api/completed.api';
-import { CompletedItem } from '../../interfaces/completed.interface';
+import {
+  CompletedItem,
+  CompletedSummary,
+} from '../../interfaces/completed.interface';
 
 @Injectable({ providedIn: 'root' })
 export class ArchiveStore {
   private readonly _items = signal<CompletedItem[]>([]);
-  private readonly _summary = signal<Record<string, number>>({});
+  private readonly _summary = signal<CompletedSummary>({});
   private readonly _loading = signal(false);
   private readonly _error = signal<string | null>(null);
 
@@ -48,9 +51,18 @@ export class ArchiveStore {
       this._totalPages.set(completedResponse.total_pages);
       this._summary.set(summaryResponse.summary);
     } catch {
-      this._error.set('Failed to load archive data.');
+      this._error.set('Не вдалося завантажити дані архіву.');
     } finally {
       this._loading.set(false);
     }
+  }
+
+  currencyCode(): string {
+    const value = this._summary()['currency_code'];
+    if (typeof value === 'string' && value.length > 0) {
+      return value;
+    }
+
+    return 'UAH';
   }
 }

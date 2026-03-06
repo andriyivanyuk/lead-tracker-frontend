@@ -2,14 +2,17 @@ import { Injectable, computed, signal } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 
+import { CompletedApi } from '../../core/api/completed.api';
 import { LeadsApi } from '../../core/api/leads.api';
 import {
   CreateLeadRequest,
   Lead,
   GetLeadsResponse,
+  LeadsSummary,
   LeadStatus,
   UpdateLeadRequest,
 } from '../../interfaces/lead.interface';
+import { CompletedSummary } from '../../interfaces/completed.interface';
 
 export const BOARD_STATUSES: LeadStatus[] = [
   'new',
@@ -21,7 +24,7 @@ export const BOARD_STATUSES: LeadStatus[] = [
 @Injectable({ providedIn: 'root' })
 export class BoardStore {
   private readonly _leads = signal<Lead[]>([]);
-  private readonly _summary = signal<Record<string, number>>({});
+  private readonly _summary = signal<BoardSummary>({});
   private readonly _loading = signal(false);
   private readonly _error = signal<string | null>(null);
   private readonly _movingLeadId = signal<number | null>(null);
@@ -35,26 +38,38 @@ export class BoardStore {
   readonly creating = this._creating.asReadonly();
   readonly statuses = computed(() => BOARD_STATUSES);
 
-  constructor(private readonly leadsApi: LeadsApi) {}
+  constructor(
+    private readonly leadsApi: LeadsApi,
+    private readonly completedApi: CompletedApi,
+  ) {}
 
   async loadBoard(): Promise<void> {
     this._loading.set(true);
     this._error.set(null);
 
     try {
-      const [leadsResponse, summaryResponse] = await Promise.all([
-        firstValueFrom(this.leadsApi.getLeads()),
-        firstValueFrom(this.leadsApi.getLeadsSummary()),
-      ]);
+      const [leadsResponse, summaryResponse, completedSummaryResponse] =
+        await Promise.all([
+          firstValueFrom(this.leadsApi.getLeads()),
+          firstValueFrom(this.leadsApi.getLeadsSummary()),
+          firstValueFrom(this.completedApi.getCompletedSummary()),
+        ]);
 
       this._leads.set(
         this.extractLeads(leadsResponse).filter(
           (lead) => lead.status !== 'completed',
         ),
       );
-      this._summary.set(summaryResponse.summary);
+
+      this._summary.set({
+        ...summaryResponse.summary,
+        ...completedSummaryResponse.summary,
+        completed_count: this.extractCompletedCount(
+          completedSummaryResponse.summary,
+        ),
+      });
     } catch {
-      this._error.set('Failed to load board data.');
+      this._error.set('Не вдалося завантажити дані дошки.');
     } finally {
       this._loading.set(false);
     }
@@ -66,7 +81,34 @@ export class BoardStore {
 
   summaryCountByStatus(status: LeadStatus): number {
     const key = `${status}_count`;
-    return this._summary()[key] ?? this.leadsByStatus(status).length;
+    const value = this.summaryValue(key);
+
+    if (typeof value === 'number') {
+      return value;
+    }
+
+    return this.leadsByStatus(status).length;
+  }
+
+  paidWeekCount(): number {
+    return this.getNumericSummaryByKeys([
+      'paid_week_count',
+      'paid_this_week_count',
+      'week_paid_count',
+    ]);
+  }
+
+  totalAmountMinor(): number {
+    return this.getNumericSummaryByKeys(['total_amount_minor']);
+  }
+
+  totalAmountCurrency(): string {
+    const value = this._summary().currency_code;
+    if (typeof value === 'string' && value.length > 0) {
+      return value;
+    }
+
+    return 'UAH';
   }
 
   async moveLead(leadId: number, status: LeadStatus): Promise<void> {
@@ -144,6 +186,29 @@ export class BoardStore {
     return [];
   }
 
+  private extractCompletedCount(summary: CompletedSummary): number {
+    if (summary.completed_count !== undefined) {
+      return summary.completed_count;
+    }
+
+    if (summary.total_count !== undefined) {
+      return summary.total_count;
+    }
+
+    return 0;
+  }
+
+  private getNumericSummaryByKeys(keys: string[]): number {
+    for (const key of keys) {
+      const value = this.summaryValue(key);
+      if (typeof value === 'number') {
+        return value;
+      }
+    }
+
+    return 0;
+  }
+
   private extractBackendErrorMessage(error: HttpErrorResponse): string | null {
     const errorBody = error.error;
 
@@ -173,4 +238,35 @@ export class BoardStore {
 
     return null;
   }
+
+  private summaryValue(key: string): number | string | undefined {
+    const summary = this._summary();
+
+    switch (key) {
+      case 'new_count':
+        return summary.new_count;
+      case 'in_progress_count':
+        return summary.in_progress_count;
+      case 'paid_count':
+        return summary.paid_count;
+      case 'completed_count':
+        return summary.completed_count;
+      case 'paid_week_count':
+        return summary.paid_week_count;
+      case 'paid_this_week_count':
+        return summary.paid_this_week_count;
+      case 'week_paid_count':
+        return summary.week_paid_count;
+      case 'total_amount_minor':
+        return summary.total_amount_minor;
+      case 'currency_code':
+        return summary.currency_code;
+      case 'total_count':
+        return summary.total_count;
+      default:
+        return undefined;
+    }
+  }
 }
+
+interface BoardSummary extends LeadsSummary, CompletedSummary {}

@@ -20,16 +20,16 @@
       <strong>{{ summaryCount('new') }}</strong>
     </div>
     <div class="stat-item">
-      <span class="stat-label">В роботі:</span>
-      <strong>{{ summaryCount('in_progress') }}</strong>
-    </div>
-    <div class="stat-item">
       <span class="stat-label">Оплачено:</span>
       <strong>{{ summaryCount('paid') }}</strong>
     </div>
     <div class="stat-item">
-      <span class="stat-label">Завершені:</span>
-      <strong>{{ summaryCount('completed') }}</strong>
+      <span class="stat-label">Оплачено за тиждень:</span>
+      <strong>{{ paidWeekCount() }}</strong>
+    </div>
+    <div class="stat-item">
+      <span class="stat-label">Сума:</span>
+      <strong>{{ totalAmountLabel() }}</strong>
     </div>
   </section>
 
@@ -67,8 +67,8 @@
           <ng-container *ngIf="column.isArchive; else activeColumnContent">
             <mat-card class="archive-entry" routerLink="/app/archive">
               <p class="archive-count">{{ summaryCount('completed') }}</p>
-              <p class="archive-caption">this month</p>
-              <button mat-button color="primary">Open Archive</button>
+              <p class="archive-caption">цього місяця</p>
+              <button mat-button color="primary">Відкрити архів</button>
             </mat-card>
           </ng-container>
 
@@ -100,19 +100,20 @@
       </div>
     </div>
 
-    <mat-card
-      class="details-panel"
-      *ngIf="selectedLead() as lead; else noSelection"
-    >
+    <mat-card class="details-panel" *ngIf="hasSelectedLead(); else noSelection">
       <div class="details-header">
-        <h2>{{ displayLeadTitle(lead) }}</h2>
-        <span>{{ statusLabel(lead.status) }}</span>
+        <h2>{{ selectedLeadTitle() }}</h2>
+        <span>{{ selectedLeadStatusLabel() }}</span>
       </div>
 
-      <p class="details-line" *ngIf="lead.title">Компанія: {{ lead.title }}</p>
-      <p class="details-line" *ngIf="lead.phone">Телефон: {{ lead.phone }}</p>
-      <p class="details-line" *ngIf="lead.contact_handle">
-        Контакт: {{ lead.contact_handle }}
+      <p class="details-line" *ngIf="selectedLeadCompany()">
+        Компанія: {{ selectedLeadCompany() }}
+      </p>
+      <p class="details-line" *ngIf="selectedLeadPhone()">
+        Телефон: {{ selectedLeadPhone() }}
+      </p>
+      <p class="details-line" *ngIf="selectedLeadHandle()">
+        Контакт: {{ selectedLeadHandle() }}
       </p>
 
       <mat-form-field appearance="outline" class="full-width">

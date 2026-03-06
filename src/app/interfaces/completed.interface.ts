@@ -26,5 +26,16 @@ export interface GetCompletedResponse {
 
 export interface GetCompletedSummaryResponse {
   ok: boolean;
-  summary: Record<string, number>;
+  summary: CompletedSummary;
+}
+
+export interface CompletedSummary {
+  completed_count?: number;
+  total_count?: number;
+  success_count?: number;
+  refused_count?: number;
+  no_response_count?: number;
+  other_count?: number;
+  total_amount_minor?: number;
+  currency_code?: string;
 }

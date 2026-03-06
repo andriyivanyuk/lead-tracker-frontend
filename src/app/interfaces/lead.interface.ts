@@ -7,6 +7,8 @@ export type LeadSource =
   | 'facebook'
   | 'other';
 
+export type CreateLeadStatus = 'new' | 'in_progress' | 'paid';
+
 export interface Lead {
   id: number;
   status: LeadStatus;
@@ -51,11 +53,11 @@ export interface CreateLeadRequest {
   contact_handle: string | null;
   phone: string | null;
   notes: string | null;
-  status?: LeadStatus;
-  source?: LeadSource;
-  amount_minor?: number | null;
-  currency_code?: string;
-  reminder_at?: string | null;
+  status: CreateLeadStatus;
+  source: LeadSource;
+  amount_minor: number | null;
+  currency_code: string;
+  reminder_at: string | null;
 }
 
 export interface UpdateLeadRequest {
@@ -78,6 +80,29 @@ export interface MoveLeadRequest {
 export interface LeadItemResponse {
   ok: boolean;
   item: Lead;
+}
+
+export interface GetLeadResponse {
+  ok: boolean;
+  item: Lead;
+}
+
+export interface LeadEvent {
+  id: number;
+  type: string;
+  message?: string | null;
+  actor_name?: string | null;
+  actor_email?: string | null;
+  created_at: string;
+  note?: string | null;
+  from_status?: LeadStatus | null;
+  to_status?: LeadStatus | null;
+}
+
+export interface GetLeadEventsResponse {
+  ok: boolean;
+  items?: LeadEvent[];
+  events?: LeadEvent[];
 }
 
 export interface DeleteLeadResponse {

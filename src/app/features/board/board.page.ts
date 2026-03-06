@@ -15,6 +15,7 @@ import { firstValueFrom } from 'rxjs';
 import {
   CreateLeadRequest,
   Lead,
+  LeadEvent,
   LeadStatus,
 } from '../../interfaces/lead.interface';
 import { CreateLeadDialogComponent } from './create-lead-dialog.component';
@@ -79,8 +80,13 @@ export class BoardPage implements OnInit {
       return null;
     }
 
+    const detailed = this.boardStore.selectedLeadDetails();
+    if (detailed && detailed.id === leadId) {
+      return detailed;
+    }
+
     const lead = this.boardStore.leads().find((item) => item.id === leadId);
-    return lead ?? null;
+    return lead ?? detailed ?? null;
   });
 
   savingDetails = false;
@@ -101,6 +107,11 @@ export class BoardPage implements OnInit {
     }
 
     await this.boardStore.moveLead(lead.id, status);
+
+    if (this.selectedLeadId() === lead.id) {
+      this.detailsStatusControl.setValue(status);
+      await this.boardStore.loadLeadDetails(lead.id);
+    }
   }
 
   async openCreateLeadDialog(): Promise<void> {
@@ -160,10 +171,17 @@ export class BoardPage implements OnInit {
     return `${formatted} ${currency}`;
   }
 
-  selectLead(lead: Lead): void {
+  async selectLead(lead: Lead): Promise<void> {
     this.selectedLeadId.set(lead.id);
     this.detailsStatusControl.setValue(lead.status);
     this.detailsNoteControl.setValue(lead.notes ?? '');
+    await this.boardStore.loadLeadDetails(lead.id);
+
+    const refreshedLead = this.boardStore.selectedLeadDetails();
+    if (refreshedLead && refreshedLead.id === lead.id) {
+      this.detailsStatusControl.setValue(refreshedLead.status);
+      this.detailsNoteControl.setValue(refreshedLead.notes ?? '');
+    }
   }
 
   hasSelectedLead(): boolean {
@@ -228,6 +246,48 @@ export class BoardPage implements OnInit {
   statusLabel(status: LeadStatus): string {
     const column = this.columns.find((item) => item.status === status);
     return column ? column.label : status;
+  }
+
+  selectedLeadEvents(): LeadEvent[] {
+    return this.boardStore.selectedLeadEvents();
+  }
+
+  eventDateLabel(event: LeadEvent): string {
+    const value = event.created_at;
+    if (!value) {
+      return '—';
+    }
+
+    const parsed = new Date(value);
+    if (Number.isNaN(parsed.getTime())) {
+      return value;
+    }
+
+    return parsed.toLocaleString('uk-UA');
+  }
+
+  eventActorLabel(event: LeadEvent): string {
+    if (event.actor_name && event.actor_name.trim().length > 0) {
+      return event.actor_name;
+    }
+
+    if (event.actor_email && event.actor_email.trim().length > 0) {
+      return event.actor_email;
+    }
+
+    return 'Система';
+  }
+
+  eventText(event: LeadEvent): string {
+    if (event.message && event.message.trim().length > 0) {
+      return event.message;
+    }
+
+    if (event.type && event.type.trim().length > 0) {
+      return event.type;
+    }
+
+    return 'Оновлення ліда';
   }
 
   filteredLeads(status: LeadStatus): Lead[] {

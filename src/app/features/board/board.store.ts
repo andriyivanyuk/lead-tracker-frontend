@@ -7,6 +7,8 @@ import { LeadsApi } from '../../core/api/leads.api';
 import {
   CreateLeadRequest,
   Lead,
+  LeadEvent,
+  GetLeadEventsResponse,
   GetLeadsResponse,
   LeadsSummary,
   LeadStatus,
@@ -26,16 +28,22 @@ export class BoardStore {
   private readonly _leads = signal<Lead[]>([]);
   private readonly _summary = signal<BoardSummary>({});
   private readonly _loading = signal(false);
+  private readonly _detailsLoading = signal(false);
   private readonly _error = signal<string | null>(null);
   private readonly _movingLeadId = signal<number | null>(null);
   private readonly _creating = signal(false);
+  private readonly _selectedLeadDetails = signal<Lead | null>(null);
+  private readonly _selectedLeadEvents = signal<LeadEvent[]>([]);
 
   readonly leads = this._leads.asReadonly();
   readonly summary = this._summary.asReadonly();
   readonly loading = this._loading.asReadonly();
+  readonly detailsLoading = this._detailsLoading.asReadonly();
   readonly error = this._error.asReadonly();
   readonly movingLeadId = this._movingLeadId.asReadonly();
   readonly creating = this._creating.asReadonly();
+  readonly selectedLeadDetails = this._selectedLeadDetails.asReadonly();
+  readonly selectedLeadEvents = this._selectedLeadEvents.asReadonly();
   readonly statuses = computed(() => BOARD_STATUSES);
 
   constructor(
@@ -52,7 +60,9 @@ export class BoardStore {
         await Promise.all([
           firstValueFrom(this.leadsApi.getLeads()),
           firstValueFrom(this.leadsApi.getLeadsSummary()),
-          firstValueFrom(this.completedApi.getCompletedSummary()),
+          firstValueFrom(
+            this.completedApi.getCompletedSummary(this.currentMonthFilters()),
+          ),
         ]);
 
       this._leads.set(
@@ -63,7 +73,6 @@ export class BoardStore {
 
       this._summary.set({
         ...summaryResponse.summary,
-        ...completedSummaryResponse.summary,
         completed_count: this.extractCompletedCount(
           completedSummaryResponse.summary,
         ),
@@ -158,6 +167,7 @@ export class BoardStore {
     try {
       await firstValueFrom(this.leadsApi.updateLead(id, payload));
       await this.loadBoard();
+      await this.loadLeadDetails(id);
     } catch {
       this._error.set('Failed to update lead.');
     }
@@ -174,6 +184,30 @@ export class BoardStore {
     }
   }
 
+  async loadLeadDetails(leadId: number): Promise<void> {
+    this._detailsLoading.set(true);
+
+    try {
+      const [leadResponse, eventsResponse] = await Promise.all([
+        firstValueFrom(this.leadsApi.getLead(leadId)),
+        firstValueFrom(this.leadsApi.getLeadEvents(leadId)),
+      ]);
+
+      this._selectedLeadDetails.set(leadResponse.item);
+      this._selectedLeadEvents.set(this.extractLeadEvents(eventsResponse));
+    } catch {
+      this._selectedLeadDetails.set(null);
+      this._selectedLeadEvents.set([]);
+    } finally {
+      this._detailsLoading.set(false);
+    }
+  }
+
+  clearLeadDetails(): void {
+    this._selectedLeadDetails.set(null);
+    this._selectedLeadEvents.set([]);
+  }
+
   private extractLeads(response: GetLeadsResponse): Lead[] {
     if (response.items) {
       return response.items;
@@ -181,6 +215,18 @@ export class BoardStore {
 
     if (response.leads) {
       return response.leads;
+    }
+
+    return [];
+  }
+
+  private extractLeadEvents(response: GetLeadEventsResponse): LeadEvent[] {
+    if (response.items) {
+      return response.items;
+    }
+
+    if (response.events) {
+      return response.events;
     }
 
     return [];
@@ -266,6 +312,23 @@ export class BoardStore {
       default:
         return undefined;
     }
+  }
+
+  private currentMonthFilters(): { date_from: string; date_to: string } {
+    const now = new Date();
+    const start = new Date(now.getFullYear(), now.getMonth(), 1);
+
+    return {
+      date_from: this.toIsoDate(start),
+      date_to: this.toIsoDate(now),
+    };
+  }
+
+  private toIsoDate(date: Date): string {
+    const year = date.getFullYear();
+    const month = `${date.getMonth() + 1}`.padStart(2, '0');
+    const day = `${date.getDate()}`.padStart(2, '0');
+    return `${year}-${month}-${day}`;
   }
 }
 

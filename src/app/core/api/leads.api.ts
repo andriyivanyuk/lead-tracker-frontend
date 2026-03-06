@@ -6,6 +6,8 @@ import { env } from '../../env';
 import {
   CreateLeadRequest,
   DeleteLeadResponse,
+  GetLeadEventsResponse,
+  GetLeadResponse,
   GetLeadsResponse,
   GetLeadsSummaryResponse,
   LeadItemResponse,
@@ -17,7 +19,11 @@ import {
 export class LeadsApi {
   constructor(private readonly http: HttpClient) {}
 
-  getLeads(status?: string, q?: string): Observable<GetLeadsResponse> {
+  getLeads(
+    status?: string,
+    q?: string,
+    includeCompleted30d?: boolean,
+  ): Observable<GetLeadsResponse> {
     let params = new HttpParams();
 
     if (status) {
@@ -28,6 +34,10 @@ export class LeadsApi {
       params = params.set('q', q);
     }
 
+    if (includeCompleted30d) {
+      params = params.set('include_completed_30d', 'true');
+    }
+
     return this.http.get<GetLeadsResponse>(`${env.apiBaseUrl}/leads`, {
       params,
     });
@@ -36,6 +46,16 @@ export class LeadsApi {
   getLeadsSummary(): Observable<GetLeadsSummaryResponse> {
     return this.http.get<GetLeadsSummaryResponse>(
       `${env.apiBaseUrl}/leads/summary`,
+    );
+  }
+
+  getLead(id: number): Observable<GetLeadResponse> {
+    return this.http.get<GetLeadResponse>(`${env.apiBaseUrl}/leads/${id}`);
+  }
+
+  getLeadEvents(id: number): Observable<GetLeadEventsResponse> {
+    return this.http.get<GetLeadEventsResponse>(
+      `${env.apiBaseUrl}/leads/${id}/events`,
     );
   }
 

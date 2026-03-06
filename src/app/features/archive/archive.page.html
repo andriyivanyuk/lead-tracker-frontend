@@ -12,6 +12,104 @@
   </div>
 
   <ng-container *ngIf="!archiveStore.loading()">
+    <mat-card class="filters-card">
+      <div class="filters-grid">
+        <mat-form-field appearance="outline">
+          <mat-label>Пошук</mat-label>
+          <input
+            matInput
+            [value]="archiveStore.query()"
+            (input)="onQueryChange(searchInput.value)"
+            placeholder="Ім'я, компанія, контакт"
+            #searchInput
+          />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Дата від</mat-label>
+          <input
+            matInput
+            type="date"
+            [value]="archiveStore.dateFrom()"
+            (change)="onDateFromChange(dateFromInput.value)"
+            #dateFromInput
+          />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Дата до</mat-label>
+          <input
+            matInput
+            type="date"
+            [value]="archiveStore.dateTo()"
+            (change)="onDateToChange(dateToInput.value)"
+            #dateToInput
+          />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Причина</mat-label>
+          <mat-select
+            [value]="archiveStore.reason()"
+            (selectionChange)="onReasonChange($event.value)"
+          >
+            <mat-option value="">Усі</mat-option>
+            <mat-option
+              *ngFor="let option of reasonOptions"
+              [value]="option.value"
+            >
+              {{ option.label }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Сортування</mat-label>
+          <mat-select
+            [value]="archiveStore.sort()"
+            (selectionChange)="onSortChange($event.value)"
+          >
+            <mat-option
+              *ngFor="let option of sortOptions"
+              [value]="option.value"
+            >
+              {{ option.label }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>На сторінці</mat-label>
+          <mat-select
+            [value]="archiveStore.pageSize()"
+            (selectionChange)="onPageSizeChange($event.value)"
+          >
+            <mat-option *ngFor="let option of pageSizeOptions" [value]="option">
+              {{ option }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+
+      <div class="filters-actions">
+        <button mat-flat-button color="primary" (click)="onApplyFilters()">
+          Застосувати
+        </button>
+        <button
+          mat-stroked-button
+          color="primary"
+          (click)="onCreateExport()"
+          [disabled]="archiveStore.exporting()"
+        >
+          Експорт CSV
+        </button>
+      </div>
+
+      <p class="error-text" *ngIf="archiveStore.exportError()">
+        {{ archiveStore.exportError() }}
+      </p>
+    </mat-card>
+
     <mat-card class="summary-card">
       <div
         class="summary-grid"
@@ -71,6 +169,59 @@
       <p class="muted" *ngIf="!archiveStore.hasItems()">
         Поки немає завершених заявок.
       </p>
+
+      <div class="pagination" *ngIf="archiveStore.hasItems()">
+        <button
+          mat-stroked-button
+          (click)="onPrevPage()"
+          [disabled]="archiveStore.page() <= 1"
+        >
+          Назад
+        </button>
+        <span>
+          Сторінка {{ archiveStore.page() }} з {{ archiveStore.totalPages() }} ·
+          Всього: {{ archiveStore.total() }}
+        </span>
+        <button
+          mat-stroked-button
+          (click)="onNextPage()"
+          [disabled]="archiveStore.page() >= archiveStore.totalPages()"
+        >
+          Далі
+        </button>
+      </div>
+    </mat-card>
+
+    <mat-card>
+      <h2 class="exports-title">Історія експортів</h2>
+
+      <p class="muted" *ngIf="archiveStore.exports().length === 0">
+        Експортів поки немає.
+      </p>
+
+      <div class="exports-list" *ngIf="archiveStore.exports().length > 0">
+        <div class="export-item" *ngFor="let item of archiveStore.exports()">
+          <div>
+            <p class="export-meta">#{{ item.id }}</p>
+            <p class="export-main">{{ exportCreatedAt(item) }}</p>
+            <p class="export-meta">Статус: {{ exportStatusLabel(item) }}</p>
+            <p class="export-meta">Файл: {{ exportFileName(item) }}</p>
+            <p class="error-text" *ngIf="item.error_message">
+              {{ item.error_message }}
+            </p>
+          </div>
+
+          <button
+            mat-stroked-button
+            color="primary"
+            *ngIf="item.status === 'ready'"
+            (click)="onDownloadExport(item)"
+            [disabled]="archiveStore.isExportDownloading(item.id)"
+          >
+            Завантажити
+          </button>
+        </div>
+      </div>
     </mat-card>
   </ng-container>
 </section>

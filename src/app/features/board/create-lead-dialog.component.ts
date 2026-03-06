@@ -7,6 +7,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 
 import { CreateLeadRequest } from '../../interfaces/lead.interface';
+import { mapCreateLeadFormToPayload } from './create-lead.mapper';
 
 @Component({
   selector: 'app-create-lead-dialog',
@@ -57,23 +58,17 @@ export class CreateLeadDialogComponent {
       return;
     }
 
-    const companyValue = this.companyControl.value.trim();
-    const contactValue = this.contactControl.value.trim();
-    const noteValue = this.noteControl.value.trim();
     const amountMinorValue = this.parseAmountMinor(this.amountControl.value);
-
-    const payload: CreateLeadRequest = {
-      title: companyValue.length > 0 ? companyValue : null,
-      contact_name: this.nameControl.value.trim(),
-      contact_handle: contactValue.length > 0 ? contactValue : null,
-      phone: null,
-      notes: noteValue.length > 0 ? noteValue : null,
-      status: 'new',
-      source: 'other',
+    const payload: CreateLeadRequest = mapCreateLeadFormToPayload({
+      name: this.nameControl.value,
+      company: this.companyControl.value,
+      contact: this.contactControl.value,
+      notes: this.noteControl.value,
+      phone: '',
       amount_minor: amountMinorValue,
       currency_code: 'UAH',
       reminder_at: null,
-    };
+    });
 
     this.dialogRef.close(payload);
   }

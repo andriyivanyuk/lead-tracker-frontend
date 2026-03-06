@@ -144,6 +144,36 @@
           Зберегти
         </button>
       </div>
+
+      <section class="details-timeline">
+        <h3>Історія</h3>
+
+        <div class="timeline-loading" *ngIf="boardStore.detailsLoading()">
+          <mat-spinner diameter="22"></mat-spinner>
+        </div>
+
+        <p
+          class="timeline-empty"
+          *ngIf="!boardStore.detailsLoading() && selectedLeadEvents().length === 0"
+        >
+          Подій поки немає.
+        </p>
+
+        <div
+          class="timeline-list"
+          *ngIf="!boardStore.detailsLoading() && selectedLeadEvents().length > 0"
+        >
+          <article
+            class="timeline-item"
+            *ngFor="let event of selectedLeadEvents()"
+          >
+            <p class="timeline-main">{{ eventText(event) }}</p>
+            <p class="timeline-meta">
+              {{ eventActorLabel(event) }} · {{ eventDateLabel(event) }}
+            </p>
+          </article>
+        </div>
+      </section>
     </mat-card>
 
     <ng-template #noSelection>

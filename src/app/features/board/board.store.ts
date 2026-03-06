@@ -47,7 +47,11 @@ export class BoardStore {
         firstValueFrom(this.leadsApi.getLeadsSummary()),
       ]);
 
-      this._leads.set(this.extractLeads(leadsResponse));
+      this._leads.set(
+        this.extractLeads(leadsResponse).filter(
+          (lead) => lead.status !== 'completed',
+        ),
+      );
       this._summary.set(summaryResponse.summary);
     } catch {
       this._error.set('Failed to load board data.');

@@ -64,28 +64,38 @@
           [cdkDropListData]="filteredLeads(column.status)"
           (cdkDropListDropped)="onDrop($event, column.status)"
         >
-          <mat-card
-            class="empty-card"
-            *ngIf="filteredLeads(column.status).length === 0"
-          >
-            Поки порожньо
-          </mat-card>
+          <ng-container *ngIf="column.isArchive; else activeColumnContent">
+            <mat-card class="archive-entry" routerLink="/app/archive">
+              <p class="archive-count">{{ summaryCount('completed') }}</p>
+              <p class="archive-caption">this month</p>
+              <button mat-button color="primary">Open Archive</button>
+            </mat-card>
+          </ng-container>
 
-          <mat-card
-            cdkDrag
-            *ngFor="let lead of filteredLeads(column.status)"
-            [cdkDragData]="lead"
-            class="lead-card"
-            [class.selected-card]="selectedLeadId() === lead.id"
-            (click)="selectLead(lead)"
-          >
-            <p class="lead-title">{{ displayLeadTitle(lead) }}</p>
-            <p class="lead-meta" *ngIf="lead.title">{{ lead.title }}</p>
-            <p class="lead-meta" *ngIf="lead.phone">{{ lead.phone }}</p>
-            <p class="lead-meta" *ngIf="lead.contact_handle">
-              {{ lead.contact_handle }}
-            </p>
-          </mat-card>
+          <ng-template #activeColumnContent>
+            <mat-card
+              class="empty-card"
+              *ngIf="filteredLeads(column.status).length === 0"
+            >
+              Поки порожньо
+            </mat-card>
+
+            <mat-card
+              cdkDrag
+              *ngFor="let lead of filteredLeads(column.status)"
+              [cdkDragData]="lead"
+              class="lead-card"
+              [class.selected-card]="selectedLeadId() === lead.id"
+              (click)="selectLead(lead)"
+            >
+              <p class="lead-title">{{ displayLeadTitle(lead) }}</p>
+              <p class="lead-meta" *ngIf="lead.title">{{ lead.title }}</p>
+              <p class="lead-meta" *ngIf="lead.phone">{{ lead.phone }}</p>
+              <p class="lead-meta" *ngIf="lead.contact_handle">
+                {{ lead.contact_handle }}
+              </p>
+            </mat-card>
+          </ng-template>
         </div>
       </div>
     </div>

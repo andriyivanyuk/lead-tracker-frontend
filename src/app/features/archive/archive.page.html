@@ -1,0 +1,76 @@
+<section class="archive-page">
+  <header class="archive-header">
+    <h1>Archive</h1>
+  </header>
+
+  <p class="error-text" *ngIf="archiveStore.error()">
+    {{ archiveStore.error() }}
+  </p>
+
+  <div class="loading-wrap" *ngIf="archiveStore.loading()">
+    <mat-spinner diameter="28"></mat-spinner>
+  </div>
+
+  <ng-container *ngIf="!archiveStore.loading()">
+    <mat-card class="summary-card">
+      <div
+        class="summary-grid"
+        *ngIf="summaryEntries().length > 0; else noSummary"
+      >
+        <div class="summary-item" *ngFor="let entry of summaryEntries()">
+          <span class="summary-key">{{ entry.key }}</span>
+          <strong>{{ entry.value }}</strong>
+        </div>
+      </div>
+      <ng-template #noSummary>
+        <p class="muted">No summary data yet.</p>
+      </ng-template>
+    </mat-card>
+
+    <mat-card>
+      <table
+        mat-table
+        [dataSource]="archiveStore.items()"
+        class="archive-table"
+      >
+        <ng-container matColumnDef="title">
+          <th mat-header-cell *matHeaderCellDef>Title</th>
+          <td mat-cell *matCellDef="let item">{{ item.title || '-' }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="contact_name">
+          <th mat-header-cell *matHeaderCellDef>Contact</th>
+          <td mat-cell *matCellDef="let item">
+            {{ item.contact_name || '-' }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="contact_handle">
+          <th mat-header-cell *matHeaderCellDef>Handle</th>
+          <td mat-cell *matCellDef="let item">
+            {{ item.contact_handle || '-' }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="amount_minor">
+          <th mat-header-cell *matHeaderCellDef>Amount</th>
+          <td mat-cell *matCellDef="let item">{{ displayAmount(item) }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="completed_at">
+          <th mat-header-cell *matHeaderCellDef>Completed at</th>
+          <td mat-cell *matCellDef="let item">
+            {{ displayCompletedAt(item) }}
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+      </table>
+
+      <p class="muted" *ngIf="!archiveStore.hasItems()">
+        No completed leads yet.
+      </p>
+    </mat-card>
+  </ng-container>
+</section>

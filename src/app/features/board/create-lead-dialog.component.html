@@ -26,6 +26,20 @@
       <mat-label>Нотатка</mat-label>
       <input matInput [formControl]="noteControl" />
     </mat-form-field>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Сума (опційно, грн)</mat-label>
+      <input
+        matInput
+        [formControl]="amountControl"
+        placeholder="Напр. 1250 або 1250.50"
+      />
+      <mat-error
+        *ngIf="amountControl.touched && amountControl.hasError('pattern')"
+      >
+        Вкажи число (до 2 знаків після крапки)
+      </mat-error>
+    </mat-form-field>
   </div>
 </mat-dialog-content>
 

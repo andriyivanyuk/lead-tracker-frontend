@@ -9,6 +9,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
+import { RouterModule } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 
 import {
@@ -23,6 +24,7 @@ interface BoardColumn {
   status: LeadStatus;
   label: string;
   className: string;
+  isArchive?: boolean;
 }
 
 @Component({
@@ -31,6 +33,7 @@ interface BoardColumn {
   imports: [
     CommonModule,
     ReactiveFormsModule,
+    RouterModule,
     DragDropModule,
     MatCardModule,
     MatDialogModule,
@@ -48,7 +51,12 @@ export class BoardPage implements OnInit {
     { status: 'new', label: 'Нові', className: 'is-new' },
     { status: 'in_progress', label: 'В роботі', className: 'is-in-progress' },
     { status: 'paid', label: 'Оплачено', className: 'is-paid' },
-    { status: 'completed', label: 'Завершені', className: 'is-completed' },
+    {
+      status: 'completed',
+      label: 'Завершені',
+      className: 'is-completed',
+      isArchive: true,
+    },
   ];
 
   readonly detailsStatusControl = new FormControl<LeadStatus>('new', {
@@ -167,6 +175,10 @@ export class BoardPage implements OnInit {
   }
 
   filteredLeads(status: LeadStatus): Lead[] {
+    if (status === 'completed') {
+      return [];
+    }
+
     const query = this.searchControl.value.trim().toLowerCase();
     const leads = this.boardStore.leadsByStatus(status);
 

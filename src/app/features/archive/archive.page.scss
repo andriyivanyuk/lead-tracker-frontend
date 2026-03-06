@@ -1,0 +1,47 @@
+.archive-page {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.archive-header h1 {
+  margin: 0;
+}
+
+.loading-wrap {
+  display: flex;
+  justify-content: center;
+  padding-top: 24px;
+}
+
+.summary-card {
+  padding: 12px;
+}
+
+.summary-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(140px, 1fr));
+  gap: 8px;
+}
+
+.summary-item {
+  display: flex;
+  gap: 6px;
+  align-items: baseline;
+}
+
+.summary-key {
+  opacity: 0.8;
+}
+
+.archive-table {
+  width: 100%;
+}
+
+.error-text {
+  color: var(--mat-sys-error, inherit);
+}
+
+.muted {
+  opacity: 0.75;
+}

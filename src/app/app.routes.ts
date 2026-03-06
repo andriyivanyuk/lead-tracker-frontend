@@ -3,6 +3,7 @@ import { AdminInvitesPage } from './admin-invites/admin-invites.page';
 import { authGuard } from './core/guards/auth.guard';
 import { LoginPage } from './features/auth/login.page';
 import { RegisterPage } from './features/auth/register.page';
+import { ArchivePage } from './features/archive/archive.page';
 import { BoardPage } from './features/board/board.page';
 import { AppShellPage } from './features/shell/app-shell.page';
 
@@ -33,6 +34,10 @@ export const routes: Routes = [
       {
         path: 'board',
         component: BoardPage,
+      },
+      {
+        path: 'archive',
+        component: ArchivePage,
       },
       {
         path: 'admin/invites',

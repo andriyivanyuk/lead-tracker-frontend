@@ -40,19 +40,27 @@ export class CreateLeadDialogComponent {
     nonNullable: true,
   });
 
+  readonly amountControl = new FormControl('', {
+    nonNullable: true,
+    validators: [Validators.pattern(/^\d+([\.,]\d{1,2})?$/)],
+  });
+
   constructor(
     private readonly dialogRef: MatDialogRef<CreateLeadDialogComponent>,
   ) {}
 
   submit(): void {
     this.nameControl.markAsTouched();
-    if (this.nameControl.invalid) {
+    this.amountControl.markAsTouched();
+
+    if (this.nameControl.invalid || this.amountControl.invalid) {
       return;
     }
 
     const companyValue = this.companyControl.value.trim();
     const contactValue = this.contactControl.value.trim();
     const noteValue = this.noteControl.value.trim();
+    const amountMinorValue = this.parseAmountMinor(this.amountControl.value);
 
     const payload: CreateLeadRequest = {
       title: companyValue.length > 0 ? companyValue : null,
@@ -62,7 +70,7 @@ export class CreateLeadDialogComponent {
       notes: noteValue.length > 0 ? noteValue : null,
       status: 'new',
       source: 'other',
-      amount_minor: null,
+      amount_minor: amountMinorValue,
       currency_code: 'UAH',
       reminder_at: null,
     };
@@ -72,5 +80,19 @@ export class CreateLeadDialogComponent {
 
   cancel(): void {
     this.dialogRef.close();
+  }
+
+  private parseAmountMinor(rawValue: string): number | null {
+    const normalized = rawValue.trim().replace(',', '.');
+    if (normalized.length === 0) {
+      return null;
+    }
+
+    const amountMajor = Number(normalized);
+    if (Number.isNaN(amountMajor)) {
+      return null;
+    }
+
+    return Math.round(amountMajor * 100);
   }
 }

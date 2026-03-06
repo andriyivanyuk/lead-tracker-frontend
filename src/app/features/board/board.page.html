@@ -115,6 +115,9 @@
       <p class="details-line" *ngIf="selectedLeadHandle()">
         Контакт: {{ selectedLeadHandle() }}
       </p>
+      <p class="details-line" *ngIf="selectedLeadAmountLabel()">
+        Сума: {{ selectedLeadAmountLabel() }}
+      </p>
 
       <mat-form-field appearance="outline" class="full-width">
         <mat-label>Статус</mat-label>

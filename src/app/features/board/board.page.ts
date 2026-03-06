@@ -221,6 +221,30 @@ export class BoardPage implements OnInit {
     return lead ? lead.contact_handle : null;
   }
 
+  selectedLeadAmountLabel(): string | null {
+    const lead = this.selectedLead();
+    if (
+      !lead ||
+      lead.amount_minor === null ||
+      lead.amount_minor === undefined
+    ) {
+      return null;
+    }
+
+    const currency = lead.currency_code ?? 'UAH';
+    const major = lead.amount_minor / 100;
+    const formatted = major.toLocaleString('uk-UA', {
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 2,
+    });
+
+    if (currency === 'UAH') {
+      return `${formatted} грн`;
+    }
+
+    return `${formatted} ${currency}`;
+  }
+
   async saveSelectedLead(): Promise<void> {
     const lead = this.selectedLead();
     if (!lead) {

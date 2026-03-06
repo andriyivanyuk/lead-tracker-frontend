@@ -21,6 +21,7 @@ export class AuthStore {
   private readonly _error = signal<string | null>(null);
 
   private refreshInFlight: Promise<boolean> | null = null;
+  private restoreInFlight: Promise<boolean> | null = null;
 
   readonly accessToken = this._accessToken.asReadonly();
   readonly refreshToken = this._refreshToken.asReadonly();
@@ -40,9 +41,20 @@ export class AuthStore {
     this._accessToken.set(this.tokenStorage.getAccessToken());
     this._refreshToken.set(this.tokenStorage.getRefreshToken());
 
-    if (this._accessToken()) {
-      this.loadAccount().catch(() => this.logout(false));
+    if (this._accessToken() || this._refreshToken()) {
+      void this.ensureSessionRestored();
     }
+  }
+
+  async ensureSessionRestored(): Promise<boolean> {
+    if (this.restoreInFlight) {
+      return this.restoreInFlight;
+    }
+
+    this.restoreInFlight = this.restoreSession();
+    const restored = await this.restoreInFlight;
+    this.restoreInFlight = null;
+    return restored;
   }
 
   clearError(): void {
@@ -146,5 +158,40 @@ export class AuthStore {
     } catch {
       return false;
     }
+  }
+
+  private async restoreSession(): Promise<boolean> {
+    const accessToken = this._accessToken();
+    const refreshToken = this._refreshToken();
+
+    if (!accessToken && !refreshToken) {
+      return false;
+    }
+
+    if (accessToken) {
+      try {
+        await this.loadAccount();
+        return true;
+      } catch {}
+    }
+
+    if (refreshToken) {
+      const refreshed = await this.refreshAccessToken();
+      if (!refreshed) {
+        this.logout(false);
+        return false;
+      }
+
+      try {
+        await this.loadAccount();
+        return true;
+      } catch {
+        this.logout(false);
+        return false;
+      }
+    }
+
+    this.logout(false);
+    return false;
   }
 }

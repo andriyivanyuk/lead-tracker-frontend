@@ -187,18 +187,34 @@ export class BoardStore {
   async loadLeadDetails(leadId: number): Promise<void> {
     this._detailsLoading.set(true);
 
-    try {
-      const [leadResponse, eventsResponse] = await Promise.all([
-        firstValueFrom(this.leadsApi.getLead(leadId)),
-        firstValueFrom(this.leadsApi.getLeadEvents(leadId)),
-      ]);
+    let hasLeadDetails = false;
 
+    try {
+      const leadResponse = await firstValueFrom(this.leadsApi.getLead(leadId));
       this._selectedLeadDetails.set(leadResponse.item);
+      hasLeadDetails = true;
+    } catch {
+      const existing = this._selectedLeadDetails();
+      if (!existing || existing.id !== leadId) {
+        this._selectedLeadDetails.set(null);
+      }
+    }
+
+    try {
+      const eventsResponse = await firstValueFrom(
+        this.leadsApi.getLeadEvents(leadId),
+      );
       this._selectedLeadEvents.set(this.extractLeadEvents(eventsResponse));
     } catch {
-      this._selectedLeadDetails.set(null);
       this._selectedLeadEvents.set([]);
     } finally {
+      if (!hasLeadDetails) {
+        const current = this._selectedLeadDetails();
+        if (!current || current.id !== leadId) {
+          this._selectedLeadEvents.set([]);
+        }
+      }
+
       this._detailsLoading.set(false);
     }
   }

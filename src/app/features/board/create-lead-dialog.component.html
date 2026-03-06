@@ -1,77 +1,80 @@
-<h2 mat-dialog-title>Додати лід</h2>
+<h2 mat-dialog-title class="dialog-title">Додати лід</h2>
 
-<mat-dialog-content>
-  <div class="dialog-grid">
-    <mat-form-field appearance="outline" class="full-width">
-      <mat-label>Ім’я клієнта</mat-label>
-      <input matInput [formControl]="contactNameControl" />
-      <mat-error
-        *ngIf="
-          contactNameControl.touched && contactNameControl.hasError('required')
-        "
-      >
-        Ім’я клієнта обов’язкове
-      </mat-error>
-    </mat-form-field>
+<form class="dialog-form" (submit)="onFormSubmit($event)">
+  <mat-dialog-content class="dialog-content">
+    <div class="dialog-grid">
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Ім'я клієнта</mat-label>
+        <input
+          #contactNameInput
+          matInput
+          [formControl]="contactNameControl"
+          autocomplete="off"
+        />
+        <mat-error
+          *ngIf="
+            contactNameControl.touched &&
+            contactNameControl.hasError('required')
+          "
+        >
+          Ім'я клієнта обов'язкове
+        </mat-error>
+      </mat-form-field>
 
-    <mat-form-field appearance="outline" class="full-width">
-      <mat-label>Звідки лід</mat-label>
-      <mat-select [formControl]="sourceControl">
-        <mat-option *ngFor="let option of sourceOptions" [value]="option.value">
-          <span class="source-option">
-            <mat-icon class="source-option-icon" aria-hidden="true">{{
-              option.icon
-            }}</mat-icon>
-            <span>{{ option.label }}</span>
-          </span>
-        </mat-option>
-      </mat-select>
-      <mat-error
-        *ngIf="sourceControl.touched && sourceControl.hasError('required')"
-      >
-        Обери джерело ліда
-      </mat-error>
-    </mat-form-field>
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Звідки лід</mat-label>
+        <mat-select [formControl]="sourceControl">
+          <mat-option
+            *ngFor="let option of sourceOptions"
+            [value]="option.value"
+          >
+            <span class="source-option">
+              <mat-icon class="source-option-icon" aria-hidden="true">{{
+                option.icon
+              }}</mat-icon>
+              <span>{{ option.label }}</span>
+            </span>
+          </mat-option>
+        </mat-select>
+        <mat-error
+          *ngIf="sourceControl.touched && sourceControl.hasError('required')"
+        >
+          Обери джерело ліда
+        </mat-error>
+      </mat-form-field>
 
-    <mat-form-field appearance="outline" class="full-width">
-      <mat-label>Контакт (email / &#64;handle)</mat-label>
-      <input matInput [formControl]="contactHandleControl" />
-    </mat-form-field>
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Контакт (email / &#64;handle / телефон)</mat-label>
+        <input matInput [formControl]="contactHandleControl" />
+      </mat-form-field>
 
-    <mat-form-field appearance="outline" class="full-width">
-      <mat-label>Телефон</mat-label>
-      <input matInput [formControl]="phoneControl" />
-    </mat-form-field>
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Сума, грн</mat-label>
+        <input
+          matInput
+          type="text"
+          inputmode="decimal"
+          [formControl]="amountControl"
+          placeholder="Напр. 1250 або 1250.50"
+        />
+        <mat-error
+          *ngIf="amountControl.touched && amountControl.hasError('pattern')"
+        >
+          Вкажи число (до 2 знаків після крапки)
+        </mat-error>
+      </mat-form-field>
+    </div>
+  </mat-dialog-content>
 
-    <mat-form-field appearance="outline" class="full-width">
-      <mat-label>Коротко про запит</mat-label>
-      <input matInput [formControl]="titleControl" />
-    </mat-form-field>
-
-    <mat-form-field appearance="outline" class="full-width">
-      <mat-label>Нотатка</mat-label>
-      <textarea matInput rows="3" [formControl]="notesControl"></textarea>
-    </mat-form-field>
-
-    <mat-form-field appearance="outline" class="full-width">
-      <mat-label>Сума, грн</mat-label>
-      <input
-        matInput
-        type="text"
-        inputmode="decimal"
-        [formControl]="amountControl"
-        placeholder="Напр. 1250 або 1250.50"
-      />
-      <mat-error
-        *ngIf="amountControl.touched && amountControl.hasError('pattern')"
-      >
-        Вкажи число (до 2 знаків після крапки)
-      </mat-error>
-    </mat-form-field>
-  </div>
-</mat-dialog-content>
-
-<mat-dialog-actions align="end">
-  <button mat-button (click)="cancel()">Скасувати</button>
-  <button mat-flat-button color="primary" (click)="submit()">Створити</button>
-</mat-dialog-actions>
+  <mat-dialog-actions align="end" class="dialog-actions">
+    <button mat-button type="button" (click)="cancel()">Скасувати</button>
+    <button
+      mat-flat-button
+      color="primary"
+      type="submit"
+      [disabled]="isSubmitDisabled()"
+    >
+      Створити
+    </button>
+  </mat-dialog-actions>
+</form>

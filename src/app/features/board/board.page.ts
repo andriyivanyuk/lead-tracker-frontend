@@ -6,6 +6,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
@@ -16,6 +17,7 @@ import {
   CreateLeadRequest,
   Lead,
   LeadEvent,
+  LeadSource,
   LeadStatus,
 } from '../../interfaces/lead.interface';
 import { ConfirmDeleteDialogComponent } from './confirm-delete-dialog.component';
@@ -41,6 +43,7 @@ interface BoardColumn {
     MatDialogModule,
     MatButtonModule,
     MatFormFieldModule,
+    MatIconModule,
     MatInputModule,
     MatSelectModule,
     MatProgressSpinnerModule,
@@ -148,6 +151,57 @@ export class BoardPage implements OnInit {
     }
 
     return `Lead #${lead.id}`;
+  }
+
+  sourceLabel(source: LeadSource | null): string {
+    switch (source) {
+      case 'instagram':
+        return 'Instagram';
+      case 'telegram':
+        return 'Telegram';
+      case 'viber':
+        return 'Viber';
+      case 'facebook':
+        return 'Facebook';
+      case 'other':
+      default:
+        return 'Інше';
+    }
+  }
+
+  sourceIcon(source: LeadSource | null): string {
+    switch (source) {
+      case 'instagram':
+        return 'photo_camera';
+      case 'telegram':
+        return 'send';
+      case 'viber':
+        return 'chat';
+      case 'facebook':
+        return 'thumb_up';
+      case 'other':
+      default:
+        return 'public';
+    }
+  }
+
+  leadAmountLabel(lead: Lead): string | null {
+    if (lead.amount_minor === null || lead.amount_minor === undefined) {
+      return null;
+    }
+
+    const currency = lead.currency_code ?? 'UAH';
+    const amountMajor = lead.amount_minor / 100;
+    const formatted = amountMajor.toLocaleString('uk-UA', {
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 2,
+    });
+
+    if (currency === 'UAH') {
+      return `${formatted} грн`;
+    }
+
+    return `${formatted} ${currency}`;
   }
 
   summaryCount(status: LeadStatus): number {

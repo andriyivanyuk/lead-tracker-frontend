@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, ViewChild } from '@angular/core';
 import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
@@ -27,7 +27,10 @@ import { mapCreateLeadFormToPayload } from './create-lead.mapper';
   templateUrl: './create-lead-dialog.component.html',
   styleUrl: './create-lead-dialog.component.scss',
 })
-export class CreateLeadDialogComponent {
+export class CreateLeadDialogComponent implements AfterViewInit {
+  @ViewChild('contactNameInput')
+  private readonly contactNameInput?: ElementRef<HTMLInputElement>;
+
   readonly sourceOptions: Array<{
     value: LeadSource;
     label: string;
@@ -54,18 +57,6 @@ export class CreateLeadDialogComponent {
     nonNullable: true,
   });
 
-  readonly phoneControl = new FormControl('', {
-    nonNullable: true,
-  });
-
-  readonly titleControl = new FormControl('', {
-    nonNullable: true,
-  });
-
-  readonly notesControl = new FormControl('', {
-    nonNullable: true,
-  });
-
   readonly amountControl = new FormControl('', {
     nonNullable: true,
     validators: [Validators.pattern(/^\d+([\.,]\d{1,2})?$/)],
@@ -74,6 +65,25 @@ export class CreateLeadDialogComponent {
   constructor(
     private readonly dialogRef: MatDialogRef<CreateLeadDialogComponent>,
   ) {}
+
+  ngAfterViewInit(): void {
+    queueMicrotask(() => {
+      this.contactNameInput?.nativeElement.focus();
+    });
+  }
+
+  isSubmitDisabled(): boolean {
+    return (
+      this.contactNameControl.invalid ||
+      this.sourceControl.invalid ||
+      this.amountControl.invalid
+    );
+  }
+
+  onFormSubmit(event: Event): void {
+    event.preventDefault();
+    this.submit();
+  }
 
   submit(): void {
     this.contactNameControl.markAsTouched();
@@ -90,11 +100,11 @@ export class CreateLeadDialogComponent {
 
     const amountMinorValue = this.parseAmountMinor(this.amountControl.value);
     const payload: CreateLeadRequest = mapCreateLeadFormToPayload({
-      title: this.titleControl.value,
+      title: '',
       contact_name: this.contactNameControl.value,
       contact_handle: this.contactHandleControl.value,
-      phone: this.phoneControl.value,
-      notes: this.notesControl.value,
+      phone: '',
+      notes: '',
       status: 'new',
       source: this.sourceControl.value,
       amount_minor: amountMinorValue,

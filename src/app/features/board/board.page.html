@@ -53,10 +53,16 @@
   <div class="board-layout" *ngIf="!boardStore.loading()">
     <section class="board-main-panel">
       <div class="board-grid" cdkDropListGroup>
-        <div class="board-column" *ngFor="let column of columns">
+        <div
+          class="board-column"
+          *ngFor="let column of columns"
+          [ngClass]="column.className"
+        >
           <div class="column-header">
-            <h3 [ngClass]="column.className">{{ column.label }}</h3>
-            <span>{{ summaryCount(column.status) }}</span>
+            <div class="column-title-wrap">
+              <h3>{{ column.label }}</h3>
+            </div>
+            <span class="column-count">{{ summaryCount(column.status) }}</span>
           </div>
 
           <div
@@ -89,11 +95,24 @@
                 [class.selected-card]="selectedLeadId() === lead.id"
                 (click)="selectLead(lead)"
               >
-                <p class="lead-title">{{ displayLeadTitle(lead) }}</p>
+                <div class="lead-card-top">
+                  <p class="lead-title">{{ displayLeadTitle(lead) }}</p>
+                  <span class="lead-source-chip">
+                    <mat-icon class="lead-source-icon" aria-hidden="true"
+                      >{{ sourceIcon(lead.source) }}</mat-icon
+                    >
+                    {{ sourceLabel(lead.source) }}
+                  </span>
+                </div>
+
                 <p class="lead-meta" *ngIf="lead.title">{{ lead.title }}</p>
                 <p class="lead-meta" *ngIf="lead.phone">{{ lead.phone }}</p>
                 <p class="lead-meta" *ngIf="lead.contact_handle">
                   {{ lead.contact_handle }}
+                </p>
+
+                <p class="lead-amount" *ngIf="leadAmountLabel(lead)">
+                  {{ leadAmountLabel(lead) }}
                 </p>
               </mat-card>
             </ng-template>

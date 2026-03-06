@@ -1,10 +1,37 @@
+.dialog-title {
+  margin: 0;
+  padding: 18px 22px 8px;
+}
+
+.dialog-form {
+  display: block;
+}
+
+.dialog-content {
+  display: block;
+  padding: 8px 22px 4px;
+  overflow: visible;
+}
+
 .dialog-grid {
-  min-width: 420px;
-  max-width: 520px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 360px;
+  max-width: 460px;
 }
 
 .full-width {
   width: 100%;
+}
+
+.dialog-actions {
+  padding: 10px 22px 18px;
+  gap: 8px;
+}
+
+.dialog-actions .mat-mdc-button-base {
+  min-width: 108px;
 }
 
 .source-option {
